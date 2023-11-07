@@ -41,7 +41,7 @@ Our dataset comprises 27,558 cell images, evenly split between parasitized and u
 ## PROGRAM
 
 ### Import necessary libraries:
-python
+```
 import os
 import pandas as pd
 import numpy as np
@@ -99,10 +99,10 @@ for image_filename in os.listdir(test_path+'/uninfected'):
 
 sns.jointplot(x=dim1,y=dim2)
 image_shape = (130,130,3)
-
+```
 
 ### Image Generator:
-python
+```
 image_gen = ImageDataGenerator(rotation_range=20, # rotate the image 20 degrees
                                width_shift_range=0.10, # Shift the pic width by a max of 5%
                                height_shift_range=0.10, # Shift the pic height by a max of 5%
@@ -115,9 +115,9 @@ image_gen = ImageDataGenerator(rotation_range=20, # rotate the image 20 degrees
 image_gen.flow_from_directory(train_path)
 image_gen.flow_from_directory(test_path)
 
-
+```
 ### Generate the model & compile:
-python
+```
 model = models.Sequential()
 model.add(keras.Input(shape=(image_shape)))
 model.add(layers.Conv2D(filters=32,kernel_size=(3,3),activation='relu',))
@@ -140,9 +140,9 @@ model.summary()
 
 batch_size = 16
 
-
+```
 ### Fit the model:
-python
+```
 train_image_gen = image_gen.flow_from_directory(train_path,target_size=image_shape[:2],
                               color_mode='rgb',batch_size=batch_size,class_mode='binary')
 train_image_gen.batch_size
@@ -155,39 +155,38 @@ train_image_gen.class_indices
 results = model.fit(train_image_gen,epochs=10,validation_data=test_image_gen)
 model.save('cell_model.h5')
 
-
+```
 ### Plot graphs:
-python
+```
 losses = pd.DataFrame(model.history.history)
 losses[['loss','val_loss']].plot()
 model.metrics_names
 
-
+```
 ### Metrics Evaluation:
-python
+```
 model.evaluate(test_image_gen)
 pred_probabilities = model.predict(test_image_gen)
 test_image_gen.classes
 predictions = pred_probabilities > 0.5
 print(classification_report(test_image_gen.classes,predictions))
 confusion_matrix(test_image_gen.classes,predictions)
-
+```
 
 ### Check for new image:
-python
+```
 list_dir=["Un Infected","parasitized"]
-dir_=(rnd.choice(list_dir))
-p_img=imread(train_path+'/'+dir_+'/'+os.listdir(train_path+'/'+dir_)[rnd.randint(0,100)])
+dir_=(random.choice(list_dir))
+p_img=imread(train_path+'/'+dir_+'/'+os.listdir(train_path+'/'+dir_)[random.randint(0,100)])
 img  = tf.convert_to_tensor(np.asarray(p_img))
 img = tf.image.resize(img,(130,130))
 img=img.numpy()
 pred=bool(model.predict(img.reshape(1,130,130,3))<0.5 )
-plt.title("Model prediction: "+("Parasitized" if pred  else "Un Infected")
-			+"\nActual Value: "+str(dir_))
+plt.title("Model prediction: "+("Parasitized" if pred  else "UnInfected")+"\nActual Value: "+str(dir_))
 plt.axis("off")
 plt.imshow(img)
 plt.show()
-
+```
 
 ## OUTPUT
 
